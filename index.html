@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Propinas · Tanuki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root{
+    --bg:#0A0A0B; --panel:#0F0F11; --panel2:#141417; --line:#26262B;
+    --ink:#F4F4F5; --muted:#8C8C93; --faint:#5A5A61;
+    --red:#FF3B40; --yellow:#FFD400; --white:#FFFFFF;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Space Grotesk",system-ui,sans-serif; line-height:1.5;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:44px 44px; background-position:center;
+    min-height:100vh;
+  }
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:radial-gradient(100% 70% at 50% -10%, rgba(255,212,0,.05), transparent 55%),
+               radial-gradient(80% 60% at 50% 120%, rgba(255,59,64,.05), transparent 60%);
+  }
+  .wrap{position:relative; z-index:1; max-width:760px; margin:0 auto; padding:30px 18px 80px}
+
+  /* Header */
+  header{padding:6px 0 18px}
+  .top-status{
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.18em;
+    color:var(--faint); text-transform:uppercase; border-bottom:1px solid var(--line);
+    padding-bottom:10px; margin-bottom:18px;
+  }
+  .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--yellow);
+       box-shadow:0 0 10px var(--yellow); margin-right:7px; animation:blink 1.6s infinite}
+  .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.5em; color:var(--red); font-weight:500}
+  .wordmark{
+    font-family:"Space Grotesk",sans-serif; font-weight:700;
+    font-size:clamp(38px,10vw,62px); line-height:.95; margin:8px 0 4px;
+    letter-spacing:-.02em; text-transform:uppercase;
+  }
+  .wordmark span{color:var(--yellow)}
+  .sub{font-family:"IBM Plex Mono",monospace; color:var(--muted); font-size:12.5px; letter-spacing:.05em}
+
+  /* Toolbar */
+  .toolbar{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
+    flex-wrap:wrap; margin:22px 0 16px;
+  }
+  .legend{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted); letter-spacing:.02em}
+  .legend b{color:var(--yellow); font-weight:500}
+  .ctrl{display:flex; flex-direction:column; align-items:flex-end; gap:6px}
+  .btn{
+    appearance:none; border:1px solid var(--line); background:var(--panel2);
+    color:var(--ink); font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.1em; text-transform:uppercase; padding:9px 16px; border-radius:2px;
+    cursor:pointer; transition:.14s;
+  }
+  .btn:hover{border-color:var(--red); color:var(--red)}
+  .btn:focus-visible{outline:2px solid var(--yellow); outline-offset:2px}
+  .btn[disabled]{opacity:.45; cursor:default}
+  .meta{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--faint); letter-spacing:.06em}
+
+  /* Panel base (HUD con esquinas) */
+  .panel{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:2px}
+  .panel::before,.panel::after{content:""; position:absolute; width:12px; height:12px; pointer-events:none}
+  .panel::before{top:-1px; left:-1px; border-top:2px solid var(--red); border-left:2px solid var(--red)}
+  .panel::after{bottom:-1px; right:-1px; border-bottom:2px solid var(--yellow); border-right:2px solid var(--yellow)}
+
+  /* Recibo consolidado */
+  .receipt{padding:24px 22px 26px}
+  .receipt .head{display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+    border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:14px}
+  .receipt .head .ttl{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--muted)}
+  .receipt .head .range{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--white)}
+  .lines{font-family:"IBM Plex Mono",monospace; font-size:13.5px}
+  .line{display:flex; align-items:flex-end; gap:8px; padding:5px 0; color:var(--muted)}
+  .line .lbl{white-space:nowrap}
+  .line .dots{flex:1; border-bottom:1px dashed var(--line); transform:translateY(-4px)}
+  .line .amt{white-space:nowrap; color:var(--ink); font-variant-numeric:tabular-nums}
+  .line.minus .amt{color:var(--red)}
+  .line.minus .lbl::before{content:"− "; color:var(--red)}
+  .total{display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin-top:14px; padding-top:16px; border-top:1px solid var(--red)}
+  .total .t-lbl{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--muted)}
+  .total .t-amt{font-family:"IBM Plex Mono",monospace; font-weight:600;
+    font-size:clamp(28px,8vw,40px); color:var(--yellow); font-variant-numeric:tabular-nums;
+    text-shadow:0 0 22px rgba(255,212,0,.4)}
+
+  /* Periodos */
+  .section-title{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.24em;
+    text-transform:uppercase; color:var(--faint); margin:34px 2px 12px}
+  .grid{display:grid; gap:12px}
+  .card{padding:16px 16px 14px; animation:rise .35s ease both}
+  .card-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+    margin-bottom:11px; padding-bottom:9px; border-bottom:1px solid var(--line)}
+  .card-date{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:var(--white)}
+  .card-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--faint)}
+  .crow{display:flex; align-items:flex-end; gap:8px; font-size:12.5px; padding:3.5px 0;
+    color:var(--muted); font-family:"IBM Plex Mono",monospace}
+  .crow .dots{flex:1; border-bottom:1px dashed var(--line); transform:translateY(-4px)}
+  .crow .amt{color:var(--ink); font-variant-numeric:tabular-nums}
+  .crow.minus .amt{color:var(--red)}
+  .crow.minus .lbl::before{content:"− "; color:var(--red)}
+  .crow.net{margin-top:9px; padding-top:10px; border-top:1px solid var(--line); color:var(--ink)}
+  .crow.net .lbl{letter-spacing:.12em; text-transform:uppercase; font-size:11px}
+  .crow.net .amt{color:var(--yellow); font-weight:600; font-size:15px; text-shadow:0 0 14px rgba(255,212,0,.35)}
+
+  /* Estados */
+  .state{text-align:center; padding:44px 20px; color:var(--muted)}
+  .state h3{color:var(--white); font-family:"Space Grotesk"; font-weight:700; margin:0 0 8px;
+    font-size:18px; letter-spacing:.01em}
+  .state p{margin:6px auto; max-width:440px; font-size:13.5px; font-family:"IBM Plex Mono",monospace}
+  .state.err::before{background:var(--red)} .state.err::after{background:var(--red)}
+  .spin{width:24px; height:24px; border:2px solid var(--line); border-top-color:var(--yellow);
+    border-radius:50%; margin:0 auto 14px; animation:spin .8s linear infinite}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+  @media (max-width:520px){
+    body{background-size:36px 36px}
+    .wrap{padding:22px 12px 64px}
+    .receipt{padding:20px 16px 22px}
+    .toolbar{align-items:flex-start}
+    .ctrl{align-items:flex-start}
+  }
+  footer{font-family:"IBM Plex Mono",monospace; text-align:center; color:var(--faint);
+    font-size:11px; margin-top:30px; letter-spacing:.06em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top-status">
+      <span><span class="dot"></span>Sistema activo</span>
+      <span id="status-right">—</span>
+    </div>
+    <div class="eyebrow">タヌキ</div>
+    <div class="wordmark">Tan<span>uki</span></div>
+    <div class="sub">// desglose de propinas · neto a repartir</div>
+  </header>
+
+  <div class="toolbar">
+    <div class="legend">DESCUENTOS &nbsp;·&nbsp; QR <b>2%</b> &nbsp; TARJETA <b>3%</b> &nbsp; FACT <b>17%</b></div>
+    <div class="ctrl">
+      <button class="btn" id="refresh">↻ Actualizar</button>
+      <div class="meta" id="meta"></div>
+    </div>
+  </div>
+
+  <div id="app">
+    <div class="panel"><div class="state"><div class="spin"></div>Cargando datos…</div></div>
+  </div>
+
+  <footer>Recalculado desde el Google Sheet en cada carga</footer>
+</div>
+
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQh1FlmUGMAKYoXGCZt6QHmbTUE_HvrpycNnjwlQuNUzO3ZYlUV2h0bhIcc70At0gjxwovJ7LMT6_MT/pub?output=csv";
+const RATES = { qr:0.02, card:0.03, fact:0.17 };
+
+const app = document.getElementById('app');
+const meta = document.getElementById('meta');
+const statusR = document.getElementById('status-right');
+const btn = document.getElementById('refresh');
+
+const fmt = new Intl.NumberFormat('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2});
+const bs = n => 'Bs ' + fmt.format(n||0);
+
+function norm(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+}
+function num(v){
+  if(v==null) return 0;
+  let s=String(v).replace(/bs/ig,'').replace(/\s/g,'');
+  if(!s) return 0;
+  if(s.includes('.')&&s.includes(',')) s=s.replace(/\./g,'').replace(',','.');
+  else if(s.includes(',')) s=s.replace(',','.');
+  const f=parseFloat(s.replace(/[^0-9.\-]/g,''));
+  return isNaN(f)?0:f;
+}
+function mapHeaders(fields){
+  const m={};
+  fields.forEach(f=>{
+    const n=norm(f);
+    if(n.includes('inicio')) m.start=f;
+    else if(n.includes('final')||n.includes('fin')) m.end=f;
+    else if(n.includes('total')&&n.includes('servicio')) m.total=f;
+    else if(n.startsWith('monto')&&n.includes('qr')) m.qr=f;
+    else if(n.startsWith('monto')&&n.includes('tarjeta')) m.card=f;
+    else if(n.startsWith('monto')&&n.includes('factura')) m.fact=f;
+    else if(n==='adelantos'||n==='adelanto') m.adv=f;
+    else if(n==='descuentos'||n==='descuento') m.disc=f;
+  });
+  return m;
+}
+function fmtDate(s){
+  const m=String(s||'').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(!m) return String(s||'').trim();
+  return `${m[3].padStart(2,'0')}/${m[2].padStart(2,'0')}/${m[1]}`;
+}
+function rangeLabel(a,b){
+  const A=fmtDate(a), B=fmtDate(b);
+  if(!B||A===B) return A||B;
+  return `${A} → ${B}`;
+}
+function compute(row,map){
+  const total=num(row[map.total]);
+  const qr=num(row[map.qr]), card=num(row[map.card]), fact=num(row[map.fact]);
+  const adv=num(row[map.adv]), disc=num(row[map.disc]);
+  const dQr=qr*RATES.qr, dCard=card*RATES.card, dFact=fact*RATES.fact;
+  const totalDesc=dQr+dCard+dFact;
+  const neto=total-totalDesc-adv-disc;
+  return {total,qr,card,fact,adv,disc,dQr,dCard,dFact,neto};
+}
+function lineHTML(lbl,amt,cls){
+  return `<div class="line ${cls||''}"><span class="lbl">${lbl}</span><span class="dots"></span><span class="amt">${bs(amt)}</span></div>`;
+}
+function crowHTML(lbl,amt,cls){
+  return `<div class="crow ${cls||''}"><span class="lbl">${lbl}</span><span class="dots"></span><span class="amt">${bs(amt)}</span></div>`;
+}
+function render(rows,map){
+  if(!rows.length){
+    app.innerHTML=`<div class="panel"><div class="state"><h3>Sin períodos cargados</h3><p>Agrega filas en tu Google Sheet con fecha de inicio, fecha final y montos. Luego toca Actualizar.</p></div></div>`;
+    statusR.textContent='0 períodos';
+    return;
+  }
+  const calc=rows.map(r=>({r,c:compute(r,map)}));
+  calc.sort((x,y)=> String(x.r[map.start]).localeCompare(String(y.r[map.start])));
+
+  const T=calc.reduce((a,{c})=>{
+    a.total+=c.total; a.dQr+=c.dQr; a.dCard+=c.dCard; a.dFact+=c.dFact;
+    a.adv+=c.adv; a.disc+=c.disc; a.neto+=c.neto; return a;
+  },{total:0,dQr:0,dCard:0,dFact:0,adv:0,disc:0,neto:0});
+
+  const firstA=calc[0].r[map.start];
+  const lastB=calc[calc.length-1].r[map.end]||calc[calc.length-1].r[map.start];
+
+  let receipt=`<div class="panel receipt">
+    <div class="head"><span class="ttl">Total a repartir</span><span class="range">${rangeLabel(firstA,lastB)}</span></div>
+    <div class="lines">
+      ${lineHTML('Total servicios',T.total)}
+      ${T.dQr>0?lineHTML('Descuento QR (2%)',T.dQr,'minus'):''}
+      ${T.dCard>0?lineHTML('Descuento tarjeta (3%)',T.dCard,'minus'):''}
+      ${T.dFact>0?lineHTML('Descuento facturación (17%)',T.dFact,'minus'):''}
+      ${T.adv>0?lineHTML('Adelantos',T.adv,'minus'):''}
+      ${T.disc>0?lineHTML('Descuentos',T.disc,'minus'):''}
+    </div>
+    <div class="total"><span class="t-lbl">Neto a pagar</span><span class="t-amt">${bs(T.neto)}</span></div>
+  </div>`;
+
+  const single=calc.length===1;
+  let cards = single ? '' : `<div class="section-title">⊟ ${calc.length} períodos</div><div class="grid">`;
+  if(!single){
+    calc.forEach(({r,c})=>{
+      cards+=`<div class="panel card">
+        <div class="card-top">
+          <span class="card-date">${rangeLabel(r[map.start],r[map.end])}</span>
+          <span class="card-tag">SERVICIOS ${bs(c.total)}</span>
+        </div>
+        ${crowHTML('Total servicios',c.total)}
+        ${c.dQr>0?crowHTML('Desc. QR (2%)',c.dQr,'minus'):''}
+        ${c.dCard>0?crowHTML('Desc. tarjeta (3%)',c.dCard,'minus'):''}
+        ${c.dFact>0?crowHTML('Desc. facturación (17%)',c.dFact,'minus'):''}
+        ${c.adv>0?crowHTML('Adelantos',c.adv,'minus'):''}
+        ${c.disc>0?crowHTML('Descuentos',c.disc,'minus'):''}
+        ${crowHTML('Neto a pagar',c.neto,'net')}
+      </div>`;
+    });
+    cards+='</div>';
+  }
+  app.innerHTML=receipt+cards;
+  statusR.textContent = calc.length+' período'+(calc.length>1?'s':'');
+}
+function load(){
+  app.innerHTML=`<div class="panel"><div class="state"><div class="spin"></div>Cargando datos…</div></div>`;
+  btn.disabled=true; statusR.textContent='Cargando…';
+  const url=CSV_URL+(CSV_URL.includes('?')?'&':'?')+'_cb='+Date.now();
+  Papa.parse(url,{
+    download:true, header:true, skipEmptyLines:true,
+    complete:(res)=>{
+      btn.disabled=false;
+      try{
+        const fields=res.meta.fields||[];
+        const map=mapHeaders(fields);
+        if(!map.start||!map.total){
+          app.innerHTML=`<div class="panel"><div class="state err"><h3>No encuentro las columnas</h3><p>Se necesita al menos Fecha Inicio y Total Servicios. Revisa los encabezados del Sheet.</p></div></div>`;
+          statusR.textContent='Error'; return;
+        }
+        const rows=(res.data||[]).filter(r=>{
+          const s=String(r[map.start]||'').trim();
+          return s && s.match(/\d/);
+        });
+        render(rows,map);
+        meta.textContent='Actualizado '+new Date().toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
+      }catch(e){
+        app.innerHTML=`<div class="panel"><div class="state err"><h3>Error al leer los datos</h3><p>${e.message}</p></div></div>`;
+        statusR.textContent='Error';
+      }
+    },
+    error:(err)=>{
+      btn.disabled=false; statusR.textContent='Sin conexión';
+      app.innerHTML=`<div class="panel"><div class="state err"><h3>No se pudo cargar el CSV</h3><p>Verifica que el Sheet siga publicado en la web como CSV y que el enlace sea correcto.</p></div></div>`;
+    }
+  });
+}
+btn.addEventListener('click',load);
+load();
+</script>
+</body>
+</html>
