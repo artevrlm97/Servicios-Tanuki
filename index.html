@@ -32,7 +32,6 @@
   }
   .wrap{position:relative; z-index:1; max-width:760px; margin:0 auto; padding:30px 18px 80px}
 
-  /* Header */
   header{padding:6px 0 18px}
   .top-status{
     display:flex; align-items:center; justify-content:space-between;
@@ -51,38 +50,34 @@
   .wordmark span{color:var(--yellow)}
   .sub{font-family:"IBM Plex Mono",monospace; color:var(--muted); font-size:12.5px; letter-spacing:.05em}
 
-  /* Toolbar */
-  .toolbar{
-    display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
-    flex-wrap:wrap; margin:22px 0 16px;
-  }
+  .toolbar{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:22px 0 16px}
   .legend{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted); letter-spacing:.02em}
   .legend b{color:var(--yellow); font-weight:500}
   .ctrl{display:flex; flex-direction:column; align-items:flex-end; gap:6px}
   .btn{
     appearance:none; border:1px solid var(--line); background:var(--panel2);
     color:var(--ink); font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
-    letter-spacing:.1em; text-transform:uppercase; padding:9px 16px; border-radius:2px;
-    cursor:pointer; transition:.14s;
+    letter-spacing:.1em; text-transform:uppercase; padding:9px 16px; border-radius:2px; cursor:pointer; transition:.14s;
   }
   .btn:hover{border-color:var(--red); color:var(--red)}
   .btn:focus-visible{outline:2px solid var(--yellow); outline-offset:2px}
   .btn[disabled]{opacity:.45; cursor:default}
   .meta{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--faint); letter-spacing:.06em}
 
-  /* Panel base (HUD con esquinas) */
   .panel{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:2px}
   .panel::before,.panel::after{content:""; position:absolute; width:12px; height:12px; pointer-events:none}
   .panel::before{top:-1px; left:-1px; border-top:2px solid var(--red); border-left:2px solid var(--red)}
   .panel::after{bottom:-1px; right:-1px; border-bottom:2px solid var(--yellow); border-right:2px solid var(--yellow)}
 
-  /* Recibo consolidado */
   .receipt{padding:24px 22px 26px}
   .receipt .head{display:flex; align-items:baseline; justify-content:space-between; gap:10px;
     border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:14px}
-  .receipt .head .ttl{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.22em;
-    text-transform:uppercase; color:var(--muted)}
+  .receipt .head .ttl{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted)}
   .receipt .head .range{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--white)}
+
+  .owner{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--white); margin:-2px 0 14px}
+  .owner span{color:var(--faint); letter-spacing:.16em; text-transform:uppercase; font-size:10px; margin-right:8px}
+
   .lines{font-family:"IBM Plex Mono",monospace; font-size:13.5px}
   .line{display:flex; align-items:flex-end; gap:8px; padding:5px 0; color:var(--muted)}
   .line .lbl{white-space:nowrap}
@@ -90,25 +85,31 @@
   .line .amt{white-space:nowrap; color:var(--ink); font-variant-numeric:tabular-nums}
   .line.minus .amt{color:var(--red)}
   .line.minus .lbl::before{content:"− "; color:var(--red)}
-  .total{display:flex; align-items:center; justify-content:space-between; gap:12px;
-    margin-top:14px; padding-top:16px; border-top:1px solid var(--red)}
-  .total .t-lbl{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
-    text-transform:uppercase; color:var(--muted)}
-  .total .t-amt{font-family:"IBM Plex Mono",monospace; font-weight:600;
-    font-size:clamp(28px,8vw,40px); color:var(--yellow); font-variant-numeric:tabular-nums;
-    text-shadow:0 0 22px rgba(255,212,0,.4)}
+  .line .amt.yes{color:var(--yellow)} .line .amt.no{color:var(--red)}
 
-  /* Periodos */
-  .section-title{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.24em;
-    text-transform:uppercase; color:var(--faint); margin:34px 2px 12px}
+  .total{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; padding-top:16px; border-top:1px solid var(--red)}
+  .total .t-lbl{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted)}
+  .total .t-amt{font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:clamp(28px,8vw,40px);
+    color:var(--yellow); font-variant-numeric:tabular-nums; text-shadow:0 0 22px rgba(255,212,0,.4)}
+
+  .split{margin-top:14px; padding-top:13px; border-top:1px dashed var(--line)}
+  .cdot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:8px; vertical-align:middle}
+  .cdot.yes{background:var(--yellow); box-shadow:0 0 8px var(--yellow)}
+  .cdot.no{background:var(--red); box-shadow:0 0 8px var(--red)}
+
+  .badge{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+    padding:4px 10px; border-radius:2px; border:1px solid; white-space:nowrap}
+  .badge.yes{color:var(--yellow); border-color:rgba(255,212,0,.5); background:rgba(255,212,0,.06)}
+  .badge.no{color:var(--red); border-color:rgba(255,59,64,.5); background:rgba(255,59,64,.06)}
+  .badge-row{margin-top:16px}
+
+  .section-title{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--faint); margin:34px 2px 12px}
   .grid{display:grid; gap:12px}
   .card{padding:16px 16px 14px; animation:rise .35s ease both}
-  .card-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px;
-    margin-bottom:11px; padding-bottom:9px; border-bottom:1px solid var(--line)}
+  .card-top{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; padding-bottom:9px; border-bottom:1px solid var(--line)}
   .card-date{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:var(--white)}
-  .card-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--faint)}
-  .crow{display:flex; align-items:flex-end; gap:8px; font-size:12.5px; padding:3.5px 0;
-    color:var(--muted); font-family:"IBM Plex Mono",monospace}
+  .owner.sm{font-size:12px; color:var(--muted); margin:0 0 10px}
+  .crow{display:flex; align-items:flex-end; gap:8px; font-size:12.5px; padding:3.5px 0; color:var(--muted); font-family:"IBM Plex Mono",monospace}
   .crow .dots{flex:1; border-bottom:1px dashed var(--line); transform:translateY(-4px)}
   .crow .amt{color:var(--ink); font-variant-numeric:tabular-nums}
   .crow.minus .amt{color:var(--red)}
@@ -117,14 +118,10 @@
   .crow.net .lbl{letter-spacing:.12em; text-transform:uppercase; font-size:11px}
   .crow.net .amt{color:var(--yellow); font-weight:600; font-size:15px; text-shadow:0 0 14px rgba(255,212,0,.35)}
 
-  /* Estados */
   .state{text-align:center; padding:44px 20px; color:var(--muted)}
-  .state h3{color:var(--white); font-family:"Space Grotesk"; font-weight:700; margin:0 0 8px;
-    font-size:18px; letter-spacing:.01em}
+  .state h3{color:var(--white); font-family:"Space Grotesk"; font-weight:700; margin:0 0 8px; font-size:18px; letter-spacing:.01em}
   .state p{margin:6px auto; max-width:440px; font-size:13.5px; font-family:"IBM Plex Mono",monospace}
-  .state.err::before{background:var(--red)} .state.err::after{background:var(--red)}
-  .spin{width:24px; height:24px; border:2px solid var(--line); border-top-color:var(--yellow);
-    border-radius:50%; margin:0 auto 14px; animation:spin .8s linear infinite}
+  .spin{width:24px; height:24px; border:2px solid var(--line); border-top-color:var(--yellow); border-radius:50%; margin:0 auto 14px; animation:spin .8s linear infinite}
 
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
@@ -134,11 +131,9 @@
     body{background-size:36px 36px}
     .wrap{padding:22px 12px 64px}
     .receipt{padding:20px 16px 22px}
-    .toolbar{align-items:flex-start}
-    .ctrl{align-items:flex-start}
+    .toolbar{align-items:flex-start} .ctrl{align-items:flex-start}
   }
-  footer{font-family:"IBM Plex Mono",monospace; text-align:center; color:var(--faint);
-    font-size:11px; margin-top:30px; letter-spacing:.06em}
+  footer{font-family:"IBM Plex Mono",monospace; text-align:center; color:var(--faint); font-size:11px; margin-top:30px; letter-spacing:.06em}
 </style>
 </head>
 <body>
@@ -192,18 +187,24 @@ function num(v){
   const f=parseFloat(s.replace(/[^0-9.\-]/g,''));
   return isNaN(f)?0:f;
 }
+function isDeposited(v){
+  const s=norm(v);
+  return s==='1'||s==='si'||s==='depositado'||s==='true'||s==='x';
+}
 function mapHeaders(fields){
   const m={};
   fields.forEach(f=>{
     const n=norm(f);
     if(n.includes('inicio')) m.start=f;
-    else if(n.includes('final')||n.includes('fin')) m.end=f;
+    else if(n.includes('final')) m.end=f;
     else if(n.includes('total')&&n.includes('servicio')) m.total=f;
     else if(n.startsWith('monto')&&n.includes('qr')) m.qr=f;
     else if(n.startsWith('monto')&&n.includes('tarjeta')) m.card=f;
     else if(n.startsWith('monto')&&n.includes('factura')) m.fact=f;
     else if(n==='adelantos'||n==='adelanto') m.adv=f;
     else if(n==='descuentos'||n==='descuento') m.disc=f;
+    else if(n.includes('pertenece')) m.owner=f;
+    else if(n==='estado'||n.includes('deposit')) m.dep=f;
   });
   return m;
 }
@@ -224,67 +225,101 @@ function compute(row,map){
   const dQr=qr*RATES.qr, dCard=card*RATES.card, dFact=fact*RATES.fact;
   const totalDesc=dQr+dCard+dFact;
   const neto=total-totalDesc-adv-disc;
-  return {total,qr,card,fact,adv,disc,dQr,dCard,dFact,neto};
+  const owner=map.owner?String(row[map.owner]||'').trim():'';
+  const deposited=map.dep?isDeposited(row[map.dep]):null;
+  return {total,qr,card,fact,adv,disc,dQr,dCard,dFact,neto,owner,deposited};
 }
-function lineHTML(lbl,amt,cls){
+function L(lbl,amt,cls){
   return `<div class="line ${cls||''}"><span class="lbl">${lbl}</span><span class="dots"></span><span class="amt">${bs(amt)}</span></div>`;
 }
-function crowHTML(lbl,amt,cls){
+function C(lbl,amt,cls){
   return `<div class="crow ${cls||''}"><span class="lbl">${lbl}</span><span class="dots"></span><span class="amt">${bs(amt)}</span></div>`;
 }
+function lines(o,fn){
+  return [
+    fn('Total servicios',o.total),
+    o.dQr>0?fn('Descuento QR (2%)',o.dQr,'minus'):'',
+    o.dCard>0?fn('Descuento tarjeta (3%)',o.dCard,'minus'):'',
+    o.dFact>0?fn('Descuento facturación (17%)',o.dFact,'minus'):'',
+    o.adv>0?fn('Adelantos',o.adv,'minus'):'',
+    o.disc>0?fn('Descuentos',o.disc,'minus'):''
+  ].join('');
+}
+function badge(dep){
+  if(dep===null||dep===undefined) return '';
+  return dep ? `<span class="badge yes">● Depositado</span>`
+             : `<span class="badge no">○ No depositado</span>`;
+}
+function ownerHTML(name,sm){
+  if(!name) return '';
+  return sm ? `<div class="owner sm">${name}</div>`
+            : `<div class="owner"><span>Pertenece a</span>${name}</div>`;
+}
+
 function render(rows,map){
   if(!rows.length){
     app.innerHTML=`<div class="panel"><div class="state"><h3>Sin períodos cargados</h3><p>Agrega filas en tu Google Sheet con fecha de inicio, fecha final y montos. Luego toca Actualizar.</p></div></div>`;
-    statusR.textContent='0 períodos';
-    return;
+    statusR.textContent='0 períodos'; return;
   }
   const calc=rows.map(r=>({r,c:compute(r,map)}));
   calc.sort((x,y)=> String(x.r[map.start]).localeCompare(String(y.r[map.start])));
 
+  // ---- Un solo período: una cuenta detallada ----
+  if(calc.length===1){
+    const {r,c}=calc[0];
+    app.innerHTML=`<div class="panel receipt">
+      <div class="head"><span class="ttl">Cuenta del período</span><span class="range">${rangeLabel(r[map.start],r[map.end])}</span></div>
+      ${ownerHTML(c.owner)}
+      <div class="lines">${lines(c,L)}</div>
+      <div class="total"><span class="t-lbl">Neto a pagar</span><span class="t-amt">${bs(c.neto)}</span></div>
+      ${map.dep?`<div class="badge-row">${badge(c.deposited)}</div>`:''}
+    </div>`;
+    statusR.textContent='1 período'+(map.dep&&c.deposited===false?' · pendiente':'');
+    return;
+  }
+
+  // ---- Varios períodos: consolidado + tarjetas ----
   const T=calc.reduce((a,{c})=>{
     a.total+=c.total; a.dQr+=c.dQr; a.dCard+=c.dCard; a.dFact+=c.dFact;
-    a.adv+=c.adv; a.disc+=c.disc; a.neto+=c.neto; return a;
-  },{total:0,dQr:0,dCard:0,dFact:0,adv:0,disc:0,neto:0});
+    a.adv+=c.adv; a.disc+=c.disc; a.neto+=c.neto;
+    if(c.deposited===true){a.depN+=c.neto; a.depC++;}
+    if(c.deposited===false){a.penN+=c.neto; a.penC++;}
+    return a;
+  },{total:0,dQr:0,dCard:0,dFact:0,adv:0,disc:0,neto:0,depN:0,penN:0,depC:0,penC:0});
 
   const firstA=calc[0].r[map.start];
   const lastB=calc[calc.length-1].r[map.end]||calc[calc.length-1].r[map.start];
 
+  let split='';
+  if(map.dep){
+    split=`<div class="split">
+      <div class="line"><span class="lbl"><span class="cdot yes"></span>Depositado · ${T.depC}</span><span class="dots"></span><span class="amt yes">${bs(T.depN)}</span></div>
+      <div class="line"><span class="lbl"><span class="cdot no"></span>Pendiente · ${T.penC}</span><span class="dots"></span><span class="amt no">${bs(T.penN)}</span></div>
+    </div>`;
+  }
+
   let receipt=`<div class="panel receipt">
     <div class="head"><span class="ttl">Total a repartir</span><span class="range">${rangeLabel(firstA,lastB)}</span></div>
-    <div class="lines">
-      ${lineHTML('Total servicios',T.total)}
-      ${T.dQr>0?lineHTML('Descuento QR (2%)',T.dQr,'minus'):''}
-      ${T.dCard>0?lineHTML('Descuento tarjeta (3%)',T.dCard,'minus'):''}
-      ${T.dFact>0?lineHTML('Descuento facturación (17%)',T.dFact,'minus'):''}
-      ${T.adv>0?lineHTML('Adelantos',T.adv,'minus'):''}
-      ${T.disc>0?lineHTML('Descuentos',T.disc,'minus'):''}
-    </div>
+    <div class="lines">${lines(T,L)}</div>
     <div class="total"><span class="t-lbl">Neto a pagar</span><span class="t-amt">${bs(T.neto)}</span></div>
+    ${split}
   </div>`;
 
-  const single=calc.length===1;
-  let cards = single ? '' : `<div class="section-title">⊟ ${calc.length} períodos</div><div class="grid">`;
-  if(!single){
-    calc.forEach(({r,c})=>{
-      cards+=`<div class="panel card">
-        <div class="card-top">
-          <span class="card-date">${rangeLabel(r[map.start],r[map.end])}</span>
-          <span class="card-tag">SERVICIOS ${bs(c.total)}</span>
-        </div>
-        ${crowHTML('Total servicios',c.total)}
-        ${c.dQr>0?crowHTML('Desc. QR (2%)',c.dQr,'minus'):''}
-        ${c.dCard>0?crowHTML('Desc. tarjeta (3%)',c.dCard,'minus'):''}
-        ${c.dFact>0?crowHTML('Desc. facturación (17%)',c.dFact,'minus'):''}
-        ${c.adv>0?crowHTML('Adelantos',c.adv,'minus'):''}
-        ${c.disc>0?crowHTML('Descuentos',c.disc,'minus'):''}
-        ${crowHTML('Neto a pagar',c.neto,'net')}
-      </div>`;
-    });
-    cards+='</div>';
-  }
+  let cards=`<div class="section-title">⊟ ${calc.length} períodos</div><div class="grid">`;
+  calc.forEach(({r,c})=>{
+    cards+=`<div class="panel card">
+      <div class="card-top"><span class="card-date">${rangeLabel(r[map.start],r[map.end])}</span>${badge(c.deposited)}</div>
+      ${ownerHTML(c.owner,true)}
+      ${lines(c,C)}
+      ${C('Neto a pagar',c.neto,'net')}
+    </div>`;
+  });
+  cards+='</div>';
+
   app.innerHTML=receipt+cards;
-  statusR.textContent = calc.length+' período'+(calc.length>1?'s':'');
+  statusR.textContent=calc.length+' períodos'+(map.dep&&T.penC?` · ${T.penC} pend.`:'');
 }
+
 function load(){
   app.innerHTML=`<div class="panel"><div class="state"><div class="spin"></div>Cargando datos…</div></div>`;
   btn.disabled=true; statusR.textContent='Cargando…';
@@ -297,7 +332,7 @@ function load(){
         const fields=res.meta.fields||[];
         const map=mapHeaders(fields);
         if(!map.start||!map.total){
-          app.innerHTML=`<div class="panel"><div class="state err"><h3>No encuentro las columnas</h3><p>Se necesita al menos Fecha Inicio y Total Servicios. Revisa los encabezados del Sheet.</p></div></div>`;
+          app.innerHTML=`<div class="panel"><div class="state"><h3>No encuentro las columnas</h3><p>Se necesita al menos Fecha Inicio y Total Servicios. Revisa los encabezados del Sheet.</p></div></div>`;
           statusR.textContent='Error'; return;
         }
         const rows=(res.data||[]).filter(r=>{
@@ -307,13 +342,13 @@ function load(){
         render(rows,map);
         meta.textContent='Actualizado '+new Date().toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
       }catch(e){
-        app.innerHTML=`<div class="panel"><div class="state err"><h3>Error al leer los datos</h3><p>${e.message}</p></div></div>`;
+        app.innerHTML=`<div class="panel"><div class="state"><h3>Error al leer los datos</h3><p>${e.message}</p></div></div>`;
         statusR.textContent='Error';
       }
     },
-    error:(err)=>{
+    error:()=>{
       btn.disabled=false; statusR.textContent='Sin conexión';
-      app.innerHTML=`<div class="panel"><div class="state err"><h3>No se pudo cargar el CSV</h3><p>Verifica que el Sheet siga publicado en la web como CSV y que el enlace sea correcto.</p></div></div>`;
+      app.innerHTML=`<div class="panel"><div class="state"><h3>No se pudo cargar el CSV</h3><p>Verifica que el Sheet siga publicado en la web como CSV y que el enlace sea correcto.</p></div></div>`;
     }
   });
 }
