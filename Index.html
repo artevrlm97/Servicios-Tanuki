@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liquidación final de propinas · Tanuki</title>
+<style>
+:root{
+  --bg:#0A0A0B;
+  --panel:#101012;
+  --panel2:#151518;
+  --line:#29292E;
+  --ink:#F4F4F5;
+  --muted:#929298;
+  --faint:#626268;
+  --yellow:#FFD400;
+  --red:#FF3B40;
+  --green:#51D88A;
+  --blue:#68A7FF;
+  --white:#FFFFFF;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--ink);
+  background:var(--bg);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  line-height:1.45;
+  background-image:
+    linear-gradient(rgba(41,41,46,.55) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(41,41,46,.55) 1px,transparent 1px);
+  background-size:44px 44px;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(70% 45% at 50% -10%,rgba(255,212,0,.08),transparent 65%),
+    radial-gradient(65% 45% at 50% 110%,rgba(255,59,64,.05),transparent 65%);
+}
+.wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:30px 18px 60px}
+header{padding-bottom:20px}
+.status{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding-bottom:10px;margin-bottom:18px;border-bottom:1px solid var(--line);
+  color:var(--faint);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--yellow);box-shadow:0 0 10px var(--yellow);margin-right:7px}
+.jp{color:var(--red);font-size:12px;letter-spacing:.46em;margin-bottom:5px}
+h1{font-family:Arial,Helvetica,sans-serif;font-size:clamp(36px,8vw,64px);line-height:.95;letter-spacing:-.04em;margin:0;text-transform:uppercase}
+h1 span{color:var(--yellow)}
+.subtitle{color:var(--muted);font-size:12px;margin-top:9px}
+.panel{position:relative;background:rgba(16,16,18,.97);border:1px solid var(--line);border-radius:3px}
+.panel::before,.panel::after{content:"";position:absolute;width:12px;height:12px;pointer-events:none}
+.panel::before{left:-1px;top:-1px;border-left:2px solid var(--red);border-top:2px solid var(--red)}
+.panel::after{right:-1px;bottom:-1px;border-right:2px solid var(--yellow);border-bottom:2px solid var(--yellow)}
+.hero{padding:22px;margin-bottom:14px}
+.hero-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding-bottom:13px;margin-bottom:13px;border-bottom:1px solid var(--line)}
+.kicker{font-size:11px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+.range{color:var(--white);font-size:12px;white-space:nowrap}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.metric{background:var(--panel2);border:1px solid var(--line);padding:13px 14px;min-height:91px}
+.metric .lbl{color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
+.metric .val{font-family:Arial,Helvetica,sans-serif;font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.05}
+.metric.main .val{color:var(--yellow);text-shadow:0 0 18px rgba(255,212,0,.25)}
+.metric.minus .val{color:var(--red)}
+.section-title{font-size:11px;letter-spacing:.21em;text-transform:uppercase;color:var(--faint);margin:26px 2px 10px}
+.people{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.person{padding:18px 16px 17px}
+.person-head{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:11px;margin-bottom:10px}
+.name{font-family:Arial,Helvetica,sans-serif;font-weight:800;font-size:21px;letter-spacing:-.02em}
+.badge{border:1px solid rgba(255,212,0,.42);background:rgba(255,212,0,.06);color:var(--yellow);font-size:9px;letter-spacing:.11em;text-transform:uppercase;padding:4px 7px;border-radius:2px;white-space:nowrap}
+.row{display:flex;align-items:flex-end;gap:7px;padding:5px 0;color:var(--muted);font-size:12px}
+.row .label{white-space:nowrap}
+.row .dots{flex:1;border-bottom:1px dashed var(--line);transform:translateY(-4px)}
+.row .amount{color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.row.paid .amount{color:var(--blue)}
+.row.retained .amount{color:var(--red)}
+.pending{margin-top:11px;padding-top:12px;border-top:1px solid var(--line)}
+.pending .p-label{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--muted)}
+.pending .p-value{font-family:Arial,Helvetica,sans-serif;font-size:31px;font-weight:800;color:var(--yellow);line-height:1.1;margin-top:3px;text-shadow:0 0 18px rgba(255,212,0,.22)}
+.total-pay{margin-top:14px;padding:21px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.total-pay .left small{display:block;color:var(--muted);font-size:10px;letter-spacing:.19em;text-transform:uppercase;margin-bottom:5px}
+.total-pay .left strong{font-family:Arial,Helvetica,sans-serif;font-size:23px}
+.total-pay .big{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:clamp(34px,8vw,50px);color:var(--yellow);white-space:nowrap;text-shadow:0 0 25px rgba(255,212,0,.28)}
+.secondary{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.outside{padding:17px 16px}
+.outside .top{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px}
+.outside .who{font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:800}
+.outside .tag{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:4px 7px}
+.outside .amount{font-size:24px;color:var(--white);font-weight:700;margin:8px 0 3px}
+.outside p{margin:0;color:var(--muted);font-size:11px}
+.rules{padding:18px 18px 16px}
+.rulegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.rule{background:var(--panel2);border:1px solid var(--line);padding:12px}
+.rule b{display:block;color:var(--yellow);font-size:15px;margin-bottom:3px}
+.rule span{color:var(--muted);font-size:10px;line-height:1.35;display:block}
+.note{margin-top:12px;color:var(--faint);font-size:10px;line-height:1.5}
+footer{text-align:center;color:var(--faint);font-size:10px;letter-spacing:.08em;margin-top:25px}
+
+/* --- Períodos interactivos --- */
+.period-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.period-card{width:100%;padding:17px 16px;text-align:left;color:var(--ink);font:inherit;cursor:pointer;appearance:none;transition:transform .15s ease,border-color .15s ease,background .15s ease}
+.period-card:hover{transform:translateY(-2px);border-color:#4a4a51;background:#131316}
+.period-card:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+.period-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+.period-name{font-family:Arial,Helvetica,sans-serif;font-weight:800;font-size:21px;letter-spacing:-.02em}
+.period-range{color:var(--muted);font-size:10px;text-align:right;line-height:1.35}
+.period-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.period-mini div{background:var(--panel2);border:1px solid var(--line);padding:9px 8px}
+.period-mini span{display:block;color:var(--faint);font-size:8px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.period-mini b{font-size:12px;color:var(--ink);font-weight:700}
+.period-open{margin-top:11px;color:var(--yellow);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.78);backdrop-filter:blur(7px)}
+.modal.open{display:flex}
+.modal-box{width:min(1050px,100%);max-height:90vh;overflow:hidden;background:#0e0e10;border:1px solid var(--line);box-shadow:0 25px 90px rgba(0,0,0,.55);position:relative}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:18px 18px 14px;border-bottom:1px solid var(--line)}
+.modal-title{font-family:Arial,Helvetica,sans-serif;font-size:25px;font-weight:900;margin:0}
+.modal-sub{color:var(--muted);font-size:10px;margin-top:4px}
+.modal-close{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--ink);width:36px;height:36px;cursor:pointer;font-size:20px}
+.modal-close:hover{color:var(--red);border-color:var(--red)}
+.modal-summary{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.msum{background:var(--panel2);border:1px solid var(--line);padding:9px}
+.msum span{display:block;color:var(--faint);font-size:8px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.msum b{font-size:12px;color:var(--ink)}
+.msum.main b{color:var(--yellow)}
+.table-wrap{overflow:auto;max-height:55vh}
+.detail-table{width:100%;border-collapse:collapse;min-width:1040px;font-size:10px}
+.detail-table th{position:sticky;top:0;background:#151518;color:var(--muted);text-align:left;padding:10px 9px;border-bottom:1px solid var(--line);letter-spacing:.06em;text-transform:uppercase;z-index:2}
+.detail-table td{padding:9px;border-bottom:1px solid #202024;color:var(--muted);vertical-align:top}
+.detail-table td.num{color:var(--ink);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.detail-table td.net{color:var(--yellow);font-weight:700}
+.detail-table tr:hover td{background:#121215}
+.modal-foot{padding:10px 18px;color:var(--faint);font-size:9px;border-top:1px solid var(--line)}
+.click-hint{color:var(--faint);font-size:9px;margin:5px 2px 0}
+@media(max-width:760px){.period-grid{grid-template-columns:1fr}.modal-summary{grid-template-columns:repeat(2,1fr)}}
+
+@media(max-width:760px){
+  .metrics{grid-template-columns:1fr 1fr}
+  .people{grid-template-columns:1fr}
+  .secondary{grid-template-columns:1fr}
+  .rulegrid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .wrap{padding:20px 12px 45px}
+  .metrics{grid-template-columns:1fr}
+  .hero{padding:17px 14px}
+  .hero-head{flex-direction:column}
+  .total-pay{align-items:flex-start;flex-direction:column}
+}
+@media print{
+  body{background:#fff;color:#111}
+  body::before{display:none}
+  .panel,.metric,.rule{background:#fff;border-color:#ccc}
+  .wrap{max-width:100%;padding:10mm}
+  .name,.metric .val,.outside .amount,.total-pay .left strong{color:#111}
+  .subtitle,.kicker,.row,.row .amount,.outside p,.rule span,.note,.status{color:#555}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="status">
+      <span><span class="dot"></span>Cierre final</span>
+      <span>01/07/2026 → 10/08/2026</span>
+    </div>
+    <div class="jp">タヌキ</div>
+    <h1>Tan<span>uki</span></h1>
+    <div class="subtitle">// display de liquidación final de propinas · formato extraordinario</div>
+  </header>
+
+  <section class="panel hero">
+    <div class="hero-head">
+      <div>
+        <div class="kicker">Resumen del período</div>
+      </div>
+      <div class="range">41 días · cierre consolidado</div>
+    </div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="lbl">Tips brutos</div>
+        <div class="val">Bs 9.554,00</div>
+      </div>
+      <div class="metric minus">
+        <div class="lbl">Débitos totales</div>
+        <div class="val">− Bs 321,12</div>
+      </div>
+      <div class="metric">
+        <div class="lbl">Neto tras débitos</div>
+        <div class="val">Bs 9.232,88</div>
+      </div>
+      <div class="metric main">
+        <div class="lbl">Pozo Carito + fijas</div>
+        <div class="val">Bs 9.064,50</div>
+      </div>
+    </div>
+  </section>
+
+
+  <div class="section-title">Resumen por períodos</div>
+  <section class="period-grid" aria-label="Períodos de liquidación">
+    <button class="panel period-card" type="button" data-period="julio">
+      <div class="period-top">
+        <div class="period-name">Julio</div>
+        <div class="period-range">01/07 → 31/07<br>31 días</div>
+      </div>
+      <div class="period-mini">
+        <div><span>Bruto</span><b>Bs 6.932,00</b></div>
+        <div><span>Débitos</span><b>Bs 233,54</b></div>
+        <div><span>Neto</span><b>Bs 6.698,46</b></div>
+      </div>
+      <div class="period-open">Ver detalle diario →</div>
+    </button>
+
+    <button class="panel period-card" type="button" data-period="agosto">
+      <div class="period-top">
+        <div class="period-name">Agosto</div>
+        <div class="period-range">01/08 → 10/08<br>10 días</div>
+      </div>
+      <div class="period-mini">
+        <div><span>Bruto</span><b>Bs 2.622,00</b></div>
+        <div><span>Débitos</span><b>Bs 87,58</b></div>
+        <div><span>Neto</span><b>Bs 2.534,42</b></div>
+      </div>
+      <div class="period-open">Ver detalle diario →</div>
+    </button>
+  </section>
+  <div class="click-hint">Toca un período para revisar el cálculo día por día y el destino del neto.</div>
+
+  <div class="section-title">Liquidación a personal</div>
+  <section class="people">
+    <article class="panel person">
+      <div class="person-head">
+        <div class="name">Carito</div>
+        <div class="badge">Participación real de turnos</div>
+      </div>
+      <div class="row"><span class="label">Derecho neto</span><span class="dots"></span><span class="amount">Bs 1.357,66</span></div>
+      <div class="row paid"><span class="label">Pagado previamente</span><span class="dots"></span><span class="amount">Bs 0,00</span></div>
+      <div class="row retained"><span class="label">Retenido en pozo</span><span class="dots"></span><span class="amount">− Bs 512,00</span></div>
+      <div class="pending">
+        <div class="p-label">Pendiente a pagar</div>
+        <div class="p-value">Bs 845,66</div>
+      </div>
+    </article>
+
+    <article class="panel person">
+      <div class="person-head">
+        <div class="name">Victoria</div>
+        <div class="badge">Distribución real por turnos</div>
+      </div>
+      <div class="row"><span class="label">Base compartida del pozo fijo</span><span class="dots"></span><span class="amount">Bs 3.242,47</span></div>
+      <div class="row"><span class="label">Turnos con Carito</span><span class="dots"></span><span class="amount">+ Bs 682,65</span></div>
+      <div class="row"><span class="label">Derecho neto</span><span class="dots"></span><span class="amount">Bs 3.925,12</span></div>
+      <div class="row paid"><span class="label">Pagado previamente</span><span class="dots"></span><span class="amount">− Bs 1.100,00</span></div>
+      <div class="row retained"><span class="label">Retenido en pozo</span><span class="dots"></span><span class="amount">− Bs 1.664,00</span></div>
+      <div class="pending">
+        <div class="p-label">Pendiente a pagar</div>
+        <div class="p-value">Bs 1.161,12</div>
+      </div>
+    </article>
+
+    <article class="panel person">
+      <div class="person-head">
+        <div class="name">Tatiana</div>
+        <div class="badge">Distribución real por turnos</div>
+      </div>
+      <div class="row"><span class="label">Base compartida del pozo fijo</span><span class="dots"></span><span class="amount">Bs 3.242,47</span></div>
+      <div class="row"><span class="label">Turnos con Carito</span><span class="dots"></span><span class="amount">+ Bs 539,25</span></div>
+      <div class="row"><span class="label">Derecho neto</span><span class="dots"></span><span class="amount">Bs 3.781,72</span></div>
+      <div class="row paid"><span class="label">Pagado previamente</span><span class="dots"></span><span class="amount">− Bs 1.100,00</span></div>
+      <div class="row retained"><span class="label">Retenido en pozo</span><span class="dots"></span><span class="amount">− Bs 1.664,00</span></div>
+      <div class="pending">
+        <div class="p-label">Pendiente a pagar</div>
+        <div class="p-value">Bs 1.017,72</div>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel total-pay">
+    <div class="left">
+      <small>Total pendiente a desembolsar</small>
+      <strong>Carito + Victoria + Tatiana</strong>
+    </div>
+    <div class="big">Bs 3.024,50</div>
+  </section>
+
+  <div class="section-title">Fuera de esta liquidación</div>
+  <section class="secondary">
+    <article class="panel outside">
+      <div class="top"><span class="who">Cristian</span><span class="tag">Eventual</span></div>
+      <div class="amount">Bs 0,00</div>
+      <p>Eventual: no recibe de este pozo. El 50% de su participación pasa al restaurante y el otro 50% se asigna a Carito o al pozo fijo según a quién pertenezca el turno.</p>
+    </article>
+    <article class="panel outside">
+      <div class="top"><span class="who">Restaurante</span><span class="tag">Fuera personal</span></div>
+      <div class="amount">Bs 168,38</div>
+      <p>Incluye Bs 45,25 del 04/08 y Bs 123,13 del movimiento del 05/08.</p>
+    </article>
+  </section>
+
+  <div class="section-title">Criterios usados</div>
+  <section class="panel rules">
+    <div class="rulegrid">
+      <div class="rule"><b>QR · 3%</b><span>Débito aplicado al servicio correspondiente de cada día.</span></div>
+      <div class="rule"><b>Tarjeta · 3%</b><span>Débito aplicado al servicio correspondiente de cada día.</span></div>
+      <div class="rule"><b>Factura · 17%</b><span>Retención calculada únicamente sobre el servicio incluido en la factura.</span></div>
+      <div class="rule"><b>Cristian · eventual</b><span>50% de su participación al restaurante; 50% a Carito o al pozo fijo según corresponda.</span></div>
+    </div>
+    <div class="note">
+      La distribución final usa los turnos reales. En los días Carito + Victoria, el 50% de la fija se acredita a Victoria; en los días Carito + Tatiana, se acredita a Tatiana. El resto del pozo fijo se divide 50/50 entre ambas. Cuando Cristian trabaja con Carito, el 50% de la participación de Cristian pasa al restaurante y el otro 50% pasa a Carito; cuando corresponde al pozo fijo, su mitad se incorpora a la base compartida. Pagos previos y montos retenidos se muestran por separado.
+    </div>
+  </section>
+
+  <div class="note" style="margin-top:14px">
+    <b>Cierre de redondeo:</b> los turnos divididos al 50% generan fracciones de medio centavo. Para que el cierre cuadre exactamente al centavo, el ajuste de Bs 0,005 se asigna a Carito y Victoria se muestra redondeada hacia abajo en Bs 0,005. El total a desembolsar permanece en Bs 3.024,50.
+  </div>
+  <footer>Documento estático · no carga Excel, Google Sheets, CSV ni servicios externos</footer>
+</div>
+
+<div class="modal" id="periodModal" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <div>
+        <h2 class="modal-title" id="modalTitle">Detalle del período</h2>
+        <div class="modal-sub" id="modalSub"></div>
+      </div>
+      <button class="modal-close" id="modalClose" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <div class="modal-summary" id="modalSummary"></div>
+    <div class="table-wrap">
+      <table class="detail-table">
+        <thead><tr><th>Fecha</th><th>Tips</th><th>Débitos</th><th>Neto</th><th>Asignación</th><th>Carito</th><th>Victoria</th><th>Tatiana</th><th>Restaurante</th></tr></thead>
+        <tbody id="detailBody"></tbody>
+      </table>
+    </div>
+    <div class="modal-foot">Atribución diaria: cuando Carito trabajó con Tatiana o Victoria, el 50% correspondiente al fijo se acredita a quien estuvo ese turno. En los demás días del pozo fijo, el neto se divide 50/50 entre Victoria y Tatiana. Esta misma lógica se utiliza en los montos finales de la liquidación. Los importes son estáticos y no se consulta ningún Excel ni servicio externo.</div>
+  </div>
+</div>
+
+
+<script>
+const DAILY_DATA = [{"date":"01/07","month":"julio","gross":214.0,"debit":6.44,"net":207.56,"assignment":"Pozo fijas","carito":0.0,"fijas":207.56,"rest":0.0},{"date":"02/07","month":"julio","gross":86.0,"debit":1.32,"net":84.68,"assignment":"Carito + Victoria","carito":42.34,"fijas":42.34,"rest":0.0},{"date":"03/07","month":"julio","gross":20.0,"debit":1.49,"net":18.51,"assignment":"Pozo fijas","carito":0.0,"fijas":18.51,"rest":0.0},{"date":"04/07","month":"julio","gross":131.0,"debit":2.31,"net":128.69,"assignment":"Pozo fijas","carito":0.0,"fijas":128.69,"rest":0.0},{"date":"05/07","month":"julio","gross":185.0,"debit":4.32,"net":180.68,"assignment":"Pozo fijas","carito":0.0,"fijas":180.68,"rest":0.0},{"date":"06/07","month":"julio","gross":4.0,"debit":0.12,"net":3.88,"assignment":"Pozo fijas","carito":0.0,"fijas":3.88,"rest":0.0},{"date":"07/07","month":"julio","gross":155.0,"debit":6.51,"net":148.49,"assignment":"Carito + Tatiana","carito":74.245,"fijas":74.245,"rest":0.0},{"date":"08/07","month":"julio","gross":297.0,"debit":9.25,"net":287.75,"assignment":"Pozo fijas","carito":0.0,"fijas":287.75,"rest":0.0},{"date":"09/07","month":"julio","gross":347.0,"debit":18.24,"net":328.76,"assignment":"Pozo fijas","carito":0.0,"fijas":328.76,"rest":0.0},{"date":"10/07","month":"julio","gross":392.0,"debit":12.34,"net":379.66,"assignment":"Carito + Victoria","carito":189.83,"fijas":189.83,"rest":0.0},{"date":"11/07","month":"julio","gross":149.0,"debit":4.58,"net":144.42,"assignment":"Pozo fijas","carito":0.0,"fijas":144.42,"rest":0.0},{"date":"12/07","month":"julio","gross":308.0,"debit":6.92,"net":301.08,"assignment":"Pozo fijas","carito":0.0,"fijas":301.08,"rest":0.0},{"date":"13/07","month":"julio","gross":213.0,"debit":4.46,"net":208.54,"assignment":"Pozo fijas","carito":0.0,"fijas":208.54,"rest":0.0},{"date":"14/07","month":"julio","gross":163.0,"debit":6.79,"net":156.21,"assignment":"Carito + Tatiana","carito":78.105,"fijas":78.105,"rest":0.0},{"date":"15/07","month":"julio","gross":189.0,"debit":2.19,"net":186.81,"assignment":"Carito + Victoria","carito":93.405,"fijas":93.405,"rest":0.0},{"date":"16/07","month":"julio","gross":203.0,"debit":2.37,"net":200.63,"assignment":"Pozo fijas","carito":0.0,"fijas":200.63,"rest":0.0},{"date":"17/07","month":"julio","gross":309.0,"debit":24.7,"net":284.3,"assignment":"Pozo fijas","carito":0.0,"fijas":284.3,"rest":0.0},{"date":"18/07","month":"julio","gross":353.0,"debit":13.47,"net":339.53,"assignment":"Pozo fijas","carito":0.0,"fijas":339.53,"rest":0.0},{"date":"19/07","month":"julio","gross":163.0,"debit":5.18,"net":157.82,"assignment":"Pozo fijas","carito":0.0,"fijas":157.82,"rest":0.0},{"date":"20/07","month":"julio","gross":309.0,"debit":4.8,"net":304.2,"assignment":"Carito + Tatiana","carito":152.1,"fijas":152.1,"rest":0.0},{"date":"21/07","month":"julio","gross":20.0,"debit":0.24,"net":19.76,"assignment":"Carito + Victoria","carito":9.88,"fijas":9.88,"rest":0.0},{"date":"22/07","month":"julio","gross":70.0,"debit":6.7,"net":63.3,"assignment":"Pozo fijas","carito":0.0,"fijas":63.3,"rest":0.0},{"date":"23/07","month":"julio","gross":482.0,"debit":13.87,"net":468.13,"assignment":"Pozo fijas","carito":0.0,"fijas":468.13,"rest":0.0},{"date":"24/07","month":"julio","gross":375.0,"debit":8.45,"net":366.55,"assignment":"Pozo fijas","carito":0.0,"fijas":366.55,"rest":0.0},{"date":"25/07","month":"julio","gross":391.0,"debit":10.36,"net":380.64,"assignment":"Pozo fijas","carito":0.0,"fijas":380.64,"rest":0.0},{"date":"26/07","month":"julio","gross":249.0,"debit":5.16,"net":243.84,"assignment":"Pozo fijas","carito":0.0,"fijas":243.84,"rest":0.0},{"date":"27/07","month":"julio","gross":174.0,"debit":10.34,"net":163.66,"assignment":"Pozo fijas","carito":0.0,"fijas":163.66,"rest":0.0},{"date":"28/07","month":"julio","gross":207.0,"debit":10.15,"net":196.85,"assignment":"Carito + Tatiana","carito":98.425,"fijas":98.425,"rest":0.0},{"date":"29/07","month":"julio","gross":197.0,"debit":14.38,"net":182.62,"assignment":"Pozo fijas","carito":0.0,"fijas":182.62,"rest":0.0},{"date":"30/07","month":"julio","gross":276.0,"debit":10.13,"net":265.87,"assignment":"Carito + Victoria","carito":132.935,"fijas":132.935,"rest":0.0},{"date":"31/07","month":"julio","gross":301.0,"debit":5.96,"net":295.04,"assignment":"Pozo fijas","carito":0.0,"fijas":295.04,"rest":0.0},{"date":"01/08","month":"agosto","gross":284.0,"debit":11.25,"net":272.75,"assignment":"Carito + Tatiana","carito":136.375,"fijas":136.375,"rest":0.0},{"date":"02/08","month":"agosto","gross":227.0,"debit":3.41,"net":223.59,"assignment":"Pozo fijas","carito":0.0,"fijas":223.59,"rest":0.0},{"date":"03/08","month":"agosto","gross":252.0,"debit":5.26,"net":246.74,"assignment":"Pozo fijas","carito":0.0,"fijas":246.74,"rest":0.0},{"date":"04/08","month":"agosto","gross":189.0,"debit":8.0,"net":181.0,"assignment":"Carito + Cristian → 50% de Cristian a Carito / 50% restaurante","carito":135.75,"fijas":0.0,"rest":45.25},{"date":"05/08","month":"agosto","gross":256.0,"debit":9.74,"net":246.26,"assignment":"Cristian eventual → 50% restaurante / 50% pozo fijo","carito":0.0,"fijas":123.13,"rest":123.13},{"date":"06/08","month":"agosto","gross":447.0,"debit":18.47,"net":428.53,"assignment":"Carito + Victoria","carito":214.265,"fijas":214.265,"rest":0.0},{"date":"07/08","month":"agosto","gross":295.0,"debit":11.7,"net":283.3,"assignment":"Pozo fijas","carito":0.0,"fijas":283.3,"rest":0.0},{"date":"08/08","month":"agosto","gross":412.0,"debit":14.4,"net":397.6,"assignment":"Pozo fijas","carito":0.0,"fijas":397.6,"rest":0.0},{"date":"09/08","month":"agosto","gross":204.0,"debit":4.99,"net":199.01,"assignment":"Pozo fijas","carito":0.0,"fijas":199.01,"rest":0.0},{"date":"10/08","month":"agosto","gross":56.0,"debit":0.36,"net":55.64,"assignment":"Pozo fijas","carito":0.0,"fijas":55.64,"rest":0.0}];
+const PERIODS = {
+  julio: {title:'Julio', range:'01/07/2026 → 31/07/2026', bruto:6932, debitos:233.54, neto:6698.46, carito:871.265, fijas:5827.195, restaurante:0},
+  agosto: {title:'Agosto', range:'01/08/2026 → 10/08/2026', bruto:2622, debitos:87.58, neto:2534.42, carito:486.39, fijas:1879.65, restaurante:168.38}
+};
+const modal=document.getElementById('periodModal');
+const body=document.getElementById('detailBody');
+const title=document.getElementById('modalTitle');
+const sub=document.getElementById('modalSub');
+const summary=document.getElementById('modalSummary');
+const closeBtn=document.getElementById('modalClose');
+const fmt=n=>'Bs '+Number(n||0).toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+
+function atribucionDia(r){
+  let victoria=0, tatiana=0;
+
+  if(r.assignment==='Pozo fijas'){
+    victoria=r.fijas/2;
+    tatiana=r.fijas/2;
+  }else if(r.assignment.includes('Carito + Victoria')){
+    victoria=r.fijas;
+  }else if(r.assignment.includes('Carito + Tatiana')){
+    tatiana=r.fijas;
+  }else if(r.date==='05/08'){
+    // La mitad de Cristian que entra al pozo fijo se muestra 50/50
+    // solo para explicar visualmente el destino del monto en el período.
+    victoria=r.fijas/2;
+    tatiana=r.fijas/2;
+  }
+
+  return {
+    carito:r.carito,
+    victoria,
+    tatiana,
+    restaurante:r.rest
+  };
+}
+
+function resumenAtribucion(rows){
+  return rows.reduce((a,r)=>{
+    const x=atribucionDia(r);
+    a.carito+=x.carito;
+    a.victoria+=x.victoria;
+    a.tatiana+=x.tatiana;
+    a.restaurante+=x.restaurante;
+    return a;
+  },{carito:0,victoria:0,tatiana:0,restaurante:0});
+}
+
+function openPeriod(key){
+  const p=PERIODS[key];
+  const rows=DAILY_DATA.filter(x=>x.month===key);
+  title.textContent=p.title;
+  sub.textContent=p.range+' · '+rows.length+' días · atribución por turno';
+  const atr=resumenAtribucion(rows);
+  summary.innerHTML=`
+    <div class="msum"><span>Tips brutos</span><b>${fmt(p.bruto)}</b></div>
+    <div class="msum"><span>Débitos</span><b>${fmt(p.debitos)}</b></div>
+    <div class="msum main"><span>Neto</span><b>${fmt(p.neto)}</b></div>
+    <div class="msum"><span>Carito · turnos</span><b>${fmt(atr.carito)}</b></div>
+    <div class="msum"><span>Victoria · turnos</span><b>${fmt(atr.victoria)}</b></div>
+    <div class="msum"><span>Tatiana · turnos</span><b>${fmt(atr.tatiana)}</b></div>
+    <div class="msum"><span>Restaurante</span><b>${fmt(atr.restaurante)}</b></div>`;
+  body.innerHTML=rows.map(r=>{
+    const x=atribucionDia(r);
+    return `<tr>
+      <td>${r.date}</td>
+      <td class="num">${fmt(r.gross)}</td>
+      <td class="num">− ${fmt(r.debit)}</td>
+      <td class="num net">${fmt(r.net)}</td>
+      <td>${r.assignment}</td>
+      <td class="num">${fmt(x.carito)}</td>
+      <td class="num">${fmt(x.victoria)}</td>
+      <td class="num">${fmt(x.tatiana)}</td>
+      <td class="num">${fmt(x.restaurante)}</td>
+    </tr>`;
+  }).join('');
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  closeBtn.focus();
+}
+function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+document.querySelectorAll('.period-card').forEach(c=>c.addEventListener('click',()=>openPeriod(c.dataset.period)));
+closeBtn.addEventListener('click',closeModal);
+modal.addEventListener('click',e=>{if(e.target===modal) closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open')) closeModal();});
+</script>
+
+</body>
+</html>
